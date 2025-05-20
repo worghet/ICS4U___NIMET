@@ -2,6 +2,8 @@ package backend.server;
 
 // == IMPORTS ===========================
 import com.sun.net.httpserver.HttpServer;
+
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 
 // == NIMET SERVER =======
@@ -34,11 +36,9 @@ public class NimetServer {
 
         }
         catch (Exception e) {
-            System.out.println("err -->" + e.getMessage());
+            System.out.println("err --> " + e.getMessage());
         }
 
-        // Start server.
-        server.start();
 
     }
 
@@ -47,7 +47,8 @@ public class NimetServer {
 
 
     HttpServer nimetServer;
-    Thread meteoDataRetriever;
+    Thread meteoDataRetriever; // TODO probably remove dis
+    final String LOCATION_DATA_API = "/weather";
     final int port = 8000; // ex 8000
     final String URL = "http://18.218.44.44:" + port; // just where to connect to
 
@@ -68,7 +69,7 @@ public class NimetServer {
 
         // Default server setup.
 
-        nimetServer = HttpServer.create();
+        nimetServer = HttpServer.create(new InetSocketAddress(port), 0);
         setupAPIs();
 
         // Initialize the thread that gathers data.
@@ -81,7 +82,8 @@ public class NimetServer {
      * Starts both the server, and the hourly fetching retriever.
      */
     void start() {
-//        nimetServer.start();
+        nimetServer.start();
+        System.out.println("go here: " + URL + "\nadd query of \"?location={whatever u want}\" at the end\n\n\n\n\nserver logs:\n");
 //        meteoDataRetriever.start();
     }
 
@@ -97,11 +99,27 @@ public class NimetServer {
     }
 
     void setupAPIs() {
-//        nimetServer.createContext()
-//        nimetServer.createContext()
-//        nimetServer.createContext()
-//        nimetServer.createContext()
-//        nimetServer.createContext()
+        nimetServer.createContext(LOCATION_DATA_API, exchange -> {
+
+            // get query (q=
+
+            String rawQuery = exchange.getRequestURI().getQuery(); // comes in the form of "q=[QUERY]"
+
+            System.out.println(exchange.getRequestURI());
+            // make sure
+            if (rawQuery != null && rawQuery.startsWith("location=")) {
+                String requestedLocation = rawQuery.substring(9);
+                System.out.println("get me data from: " + requestedLocation);
+            }
+            else {
+                System.out.println("bad request twin");
+                // return status 400 (bad request)
+            }
+
+
+
+
+        });
     }
 
 }
