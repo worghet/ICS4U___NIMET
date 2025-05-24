@@ -2,9 +2,15 @@ package backend.server;
 
 // == IMPORTS ===========================
 import com.sun.net.httpserver.HttpServer;
-
+import com.google.gson.*;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.Scanner;
 
 // == NIMET SERVER =======
 public class NimetServer {
@@ -49,8 +55,11 @@ public class NimetServer {
     HttpServer nimetServer;
     Thread meteoDataRetriever; // TODO probably remove dis
     final String LOCATION_DATA_API = "/weather";
-    final int port = 8000; // ex 8000
-    final String URL = "http://18.218.44.44:" + port; // just where to connect to
+    final String WEATHER_API = "http://api.weatherapi.com/v1/current.json?key=&q="; // yes yes dont yell at me; i know that my api key is public.. actually..
+    final int PORT = 8000; // ex 8000
+    final String URL = "http://18.218.44.44:" + PORT; // just where to connect to
+    final HttpClient CLIENT = HttpClient.newHttpClient();
+    final Gson gson = new Gson();
 
 
     // ----------------------------------------------------------------
@@ -64,12 +73,12 @@ public class NimetServer {
 
         // Ensure port is not occupied.
 
-        try (ServerSocket demoServer = new ServerSocket(port)){}
+        try (ServerSocket demoServer = new ServerSocket(PORT)){}
         catch (Exception e) { throw new Exception("port is taken"); }
 
         // Default server setup.
 
-        nimetServer = HttpServer.create(new InetSocketAddress(port), 0);
+        nimetServer = HttpServer.create(new InetSocketAddress(PORT), 0);
         setupAPIs();
 
         // Initialize the thread that gathers data.
@@ -110,6 +119,16 @@ public class NimetServer {
             if (rawQuery != null && rawQuery.startsWith("location=")) {
                 String requestedLocation = rawQuery.substring(9);
                 System.out.println("get me data from: " + requestedLocation);
+
+                // ensure name is valid here?
+
+                System.out.println("json object making");
+                JsonObject weatherData = getWeatherJSON(requestedLocation);
+
+                JsonObject currentWeatherData = weatherData.getAsJsonObject("current");
+                System.out.println("temp in celcius = " + currentWeatherData.get("temp_c").getAsDouble());
+                
+                exchange.sendResponseHeaders(200, -1);
             }
             else {
                 System.out.println("bad request twin");
@@ -122,4 +141,29 @@ public class NimetServer {
         });
     }
 
+    // will ensure city exists beforehand
+    JsonObject getWeatherJSON(String cityName) {
+
+        try {
+
+            // build the request
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://api.weatherapi.com/v1/current.json?key=886ffde491f64aff9fb135114252005&q=" + cityName))
+                    .GET()
+                    .build();
+
+            // send the request
+            HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // if all good, return the content
+            if (response.statusCode() == 200) {
+                return JsonParser.parseString(response.body()).getAsJsonObject();
+            }
+
+        }
+        catch (Exception e) {}
+
+        return null;
+
+    }
 }

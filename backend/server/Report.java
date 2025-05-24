@@ -1,6 +1,6 @@
 package backend.server;
 
-public class LocationReport {
+public class Report {
 
     Location location;
     WeatherReport weather;
@@ -28,6 +28,8 @@ class WeatherReport {
 }
 
 class Location {
+
+    String name;
     double longitude;
     double latitude;
 }
