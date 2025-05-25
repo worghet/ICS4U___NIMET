@@ -1,16 +1,19 @@
 package backend.server;
 
 // == IMPORTS ===========================
+import backend.server.report_classes.Location;
+import backend.server.report_classes.Report;
+import backend.server.report_classes.Weather;
 import com.sun.net.httpserver.HttpServer;
 import com.google.gson.*;
-import java.io.IOException;
+
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Scanner;
 
 // == NIMET SERVER =======
 public class NimetServer {
@@ -55,7 +58,7 @@ public class NimetServer {
     HttpServer nimetServer;
     Thread meteoDataRetriever; // TODO probably remove dis
     final String LOCATION_DATA_API = "/weather";
-    final String WEATHER_API = "http://api.weatherapi.com/v1/current.json?key=&q="; // yes yes dont yell at me; i know that my api key is public.. actually..
+    final String WEATHER_API = "http://api.weatherapi.com/v1/current.json?key=5&q="; // yes yes dont yell at me; i know that my api key is public.. actually..
     final int PORT = 8000; // ex 8000
     final String URL = "http://18.218.44.44:" + PORT; // just where to connect to
     final HttpClient CLIENT = HttpClient.newHttpClient();
@@ -123,12 +126,54 @@ public class NimetServer {
                 // ensure name is valid here?
 
                 System.out.println("json object making");
-                JsonObject weatherData = getWeatherJSON(requestedLocation);
+                JsonObject API_DATA = getWeatherJSON(requestedLocation);
 
-                JsonObject currentWeatherData = weatherData.getAsJsonObject("current");
-                System.out.println("temp in celcius = " + currentWeatherData.get("temp_c").getAsDouble());
-                
-                exchange.sendResponseHeaders(200, -1);
+
+
+                JsonObject locationData = API_DATA.getAsJsonObject("location");
+                Location location = new Location(locationData.get("name").getAsString(),
+                                                 locationData.get("region").getAsString(),
+                                                 locationData.get("country").getAsString(),
+                                                 locationData.get("lat").getAsDouble(),
+                                                 locationData.get("lon").getAsDouble());
+
+
+
+                JsonObject currentWeatherData = API_DATA.getAsJsonObject("current");
+
+                Weather weather = new Weather();
+                weather.setTemperatures(currentWeatherData.get("temp_c").getAsDouble(), currentWeatherData.get("temp_f").getAsDouble(),
+                                        currentWeatherData.get("feelslike_c").getAsDouble(), currentWeatherData.get("feelslike_f").getAsDouble(),
+                                        currentWeatherData.get("dewpoint_c").getAsDouble(), currentWeatherData.get("dewpoint_f").getAsDouble());
+
+                weather.setAirProperties(currentWeatherData.get("humidity").getAsDouble(),
+                                         currentWeatherData.get("pressure_mb").getAsDouble(), currentWeatherData.get("pressure_in").getAsDouble());
+//
+                weather.setWind(currentWeatherData.get("wind_kph").getAsDouble(), currentWeatherData.get("wind_mph").getAsDouble(),
+                                currentWeatherData.get("wind_dir").getAsString(), currentWeatherData.get("wind_degree").getAsDouble());
+//
+                weather.setDayNight(currentWeatherData.get("is_day").getAsInt());
+//
+                weather.setConditions(currentWeatherData.get("cloud").getAsDouble(),
+                                      currentWeatherData.getAsJsonObject("condition").get("text").getAsString(), currentWeatherData.getAsJsonObject("condition").get("icon").getAsString(),
+                                      currentWeatherData.get("vis_km").getAsDouble(), currentWeatherData.get("vis_miles").getAsDouble());
+
+
+//                System.out.println("hi");
+                System.out.println("we are reporting -----\n" + location);
+                System.out.println("dis weather -----\n"+weather);
+                Report assembledReport = new Report(location, weather);
+
+                // build response (Jsonify report)
+
+                String response = gson.toJson(assembledReport);
+                exchange.getResponseHeaders().add("Content-Type", "text/plain");
+                exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+                exchange.sendResponseHeaders(200, response.getBytes().length); //response.getBytes().length
+                OutputStream os = exchange.getResponseBody();
+                os.write(response.getBytes());
+                os.close();
+
             }
             else {
                 System.out.println("bad request twin");
