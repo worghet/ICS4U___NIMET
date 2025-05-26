@@ -58,7 +58,7 @@ public class NimetServer {
     HttpServer nimetServer;
     Thread meteoDataRetriever; // TODO probably remove dis
     final String LOCATION_DATA_API = "/weather";
-    final String WEATHER_API = "http://api.weatherapi.com/v1/current.json?key=5&q="; // yes yes dont yell at me; i know that my api key is public.. actually..
+    final String WEATHER_API = "http://api.weatherapi.com/v1/current.json?key=886ffde491f64aff9fb135114252005&q="; // yes yes dont yell at me; i know that my api key is public.. actually..
     final int PORT = 8000; // ex 8000
     final String URL = "http://18.218.44.44:" + PORT; // just where to connect to
     final HttpClient CLIENT = HttpClient.newHttpClient();
