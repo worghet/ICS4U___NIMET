@@ -1,4 +1,4 @@
-package backend.server.report_classes;
+package backend.server.application_classes;
 
 // can be immediate, can be forcasted weather?
 public class Weather {
@@ -102,5 +102,9 @@ public class Weather {
                 "COND --> " + condition + " (icon source: " + icon_source + ")";
     }
 
+
+    public String getCondition() {
+        return condition;
+    }
 
 }

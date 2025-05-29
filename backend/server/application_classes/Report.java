@@ -1,4 +1,4 @@
-package backend.server.report_classes;
+package backend.server.application_classes;
 
 // currently works for only "now"; no forcasting
 public class Report {

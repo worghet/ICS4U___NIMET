@@ -1,4 +1,4 @@
-package backend.server.report_classes;
+package backend.server.application_classes;
 
 public class Location {
 
@@ -15,5 +15,9 @@ public class Location {
 
     public String toString() {
         return city_name + ", " + region_name + ", " + country_name + " (" + latitude + ", " + longitude + ")";
+    }
+
+    public String getCityName() {
+        return city_name;
     }
 }

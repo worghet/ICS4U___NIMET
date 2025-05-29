@@ -1,9 +1,7 @@
 package backend.server;
 
 // == IMPORTS ===========================
-import backend.server.report_classes.Location;
-import backend.server.report_classes.Report;
-import backend.server.report_classes.Weather;
+import backend.server.application_classes.*;
 import com.sun.net.httpserver.HttpServer;
 import com.google.gson.*;
 
@@ -86,7 +84,7 @@ public class NimetServer {
 
         // Initialize the thread that gathers data.
 
-        setupMeteoRetrieverThread();
+//        setupMeteoRetrieverThread();
 
     }
 
@@ -126,11 +124,11 @@ public class NimetServer {
                 // ensure name is valid here?
 
                 System.out.println("json object making");
-                JsonObject API_DATA = getWeatherJSON(requestedLocation);
+                JsonObject WEATHER_DATA = getWeatherJSON(requestedLocation);
 
 
 
-                JsonObject locationData = API_DATA.getAsJsonObject("location");
+                JsonObject locationData = WEATHER_DATA.getAsJsonObject("location");
                 Location location = new Location(locationData.get("name").getAsString(),
                                                  locationData.get("region").getAsString(),
                                                  locationData.get("country").getAsString(),
@@ -139,7 +137,7 @@ public class NimetServer {
 
 
 
-                JsonObject currentWeatherData = API_DATA.getAsJsonObject("current");
+                JsonObject currentWeatherData = WEATHER_DATA.getAsJsonObject("current");
 
                 Weather weather = new Weather();
                 weather.setTemperatures(currentWeatherData.get("temp_c").getAsDouble(), currentWeatherData.get("temp_f").getAsDouble(),
@@ -162,11 +160,30 @@ public class NimetServer {
 //                System.out.println("hi");
                 System.out.println("we are reporting -----\n" + location);
                 System.out.println("dis weather -----\n"+weather);
-                Report assembledReport = new Report(location, weather);
+                Report report = new Report(location, weather);
+
+
+
+                // get image
+
+//                curl "https://api.unsplash.com/photos/random?query=ottawa%20day&client_id=0OZ18srl8waYPbUfdk824oOdxpfDSYUFwEzQ5sYMiJQ"
+                JsonObject IMAGE_DATA = getImageData(weather.getCondition() + " " + location.getCityName());
+
+
+                BackgroundImage backgroundImage = new BackgroundImage(
+                        IMAGE_DATA.getAsJsonObject("urls").get("full").getAsString(),       // URL
+                        IMAGE_DATA.has("alt_description") && !IMAGE_DATA.get("alt_description").isJsonNull()
+                                ? IMAGE_DATA.get("alt_description").getAsString()
+                                : "No title",                                                    // Title
+                        IMAGE_DATA.getAsJsonObject("user").get("name").getAsString()        // Author
+                );
+
+
+                ApplicationObject assembledResponse = new ApplicationObject(report, backgroundImage);
 
                 // build response (Jsonify report)
 
-                String response = gson.toJson(assembledReport);
+                String response = gson.toJson(assembledResponse);
                 exchange.getResponseHeaders().add("Content-Type", "text/plain");
                 exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
                 exchange.sendResponseHeaders(200, response.getBytes().length); //response.getBytes().length
@@ -194,6 +211,33 @@ public class NimetServer {
             // build the request
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://api.weatherapi.com/v1/current.json?key=886ffde491f64aff9fb135114252005&q=" + cityName))
+                    .GET()
+                    .build();
+
+            // send the request
+            HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // if all good, return the content
+            if (response.statusCode() == 200) {
+                return JsonParser.parseString(response.body()).getAsJsonObject();
+            }
+
+        }
+        catch (Exception e) {}
+
+        return null;
+
+    }
+
+    JsonObject getImageData(String query) {
+        try {
+
+            query = query.replaceAll(" ", "%20");
+            System.out.println("image for: " + query);
+
+            // build the request
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.unsplash.com/photos/random?query=" + query + "y&client_id=0OZ18srl8waYPbUfdk824oOdxpfDSYUFwEzQ5sYMiJQ"))
                     .GET()
                     .build();
 
