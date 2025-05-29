@@ -231,7 +231,7 @@ public class NimetServer {
 
     JsonObject getImageData(String query) {
         try {
-
+//h
             query = query.replaceAll(" ", "%20");
             System.out.println("image for: " + query);
 
