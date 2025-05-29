@@ -6,9 +6,7 @@ public class BackgroundImage {
     String title;
     String author;
 
-    public BackgroundImage(String url, String title, String author) {
+    public BackgroundImage(String url) {
         this.url = url;
-        this.title = title;
-        this.author = author;
     }
 }

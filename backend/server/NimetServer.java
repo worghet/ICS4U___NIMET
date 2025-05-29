@@ -167,23 +167,19 @@ public class NimetServer {
                 // get image
 
 //                curl "https://api.unsplash.com/photos/random?query=ottawa%20day&client_id=0OZ18srl8waYPbUfdk824oOdxpfDSYUFwEzQ5sYMiJQ"
-                JsonObject IMAGE_DATA = getImageData(weather.getCondition() + " " + location.getCityName());
+                JsonObject IMAGE_DATA = getImageData(location.getCityName());
+                //weather.getCondition() + " " +
 
-
-                BackgroundImage backgroundImage = new BackgroundImage(
-                        IMAGE_DATA.getAsJsonObject("urls").get("full").getAsString(),       // URL
-                        IMAGE_DATA.has("alt_description") && !IMAGE_DATA.get("alt_description").isJsonNull()
-                                ? IMAGE_DATA.get("alt_description").getAsString()
-                                : "No title",                                                    // Title
-                        IMAGE_DATA.getAsJsonObject("user").get("name").getAsString()        // Author
-                );
-
+                BackgroundImage backgroundImage = new BackgroundImage(IMAGE_DATA.getAsJsonObject("urls").get("full").getAsString());
+                System.out.println("bg image made");
 
                 ApplicationObject assembledResponse = new ApplicationObject(report, backgroundImage);
 
                 // build response (Jsonify report)
 
                 String response = gson.toJson(assembledResponse);
+                System.out.println("Response: " + response); // Log the response
+
                 exchange.getResponseHeaders().add("Content-Type", "text/plain");
                 exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
                 exchange.sendResponseHeaders(200, response.getBytes().length); //response.getBytes().length
@@ -237,7 +233,7 @@ public class NimetServer {
 
             // build the request
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.unsplash.com/photos/random?query=" + query + "y&client_id=0OZ18srl8waYPbUfdk824oOdxpfDSYUFwEzQ5sYMiJQ"))
+                    .uri(URI.create("https://api.unsplash.com/photos/random?query=" + query + "&client_id=0OZ18srl8waYPbUfdk824oOdxpfDSYUFwEzQ5sYMiJQ"))
                     .GET()
                     .build();
 

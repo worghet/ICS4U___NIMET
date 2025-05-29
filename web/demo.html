@@ -1,105 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Weather Report</title>
+    <meta charset="UTF-8" />
+    <title>NIMET // WEATHER TERMINAL</title>
     <style>
-        #weather-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-top: 20px;
+        * {
+          box-sizing: border-box;
         }
 
-        #report {
-            white-space: pre-line;
-            max-width: 60%;
+        body {
+          margin: 0;
+          background-color: #111;
+          color: #00ffff;
+          font-family: 'Courier New', monospace;
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          min-height: 100vh;
         }
 
-        #weather-icon {
-            max-width: 120px;
-            max-height: 120px;
-            object-fit: contain;
+        .overlay {
+          background: rgba(0, 0, 0, 0.65);
+          min-height: 100vh;
+          padding: 2rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+        }
+
+        h1 {
+          font-size: 1.8rem;
+          border-bottom: 2px solid #00ffff;
+          padding-bottom: 0.5rem;
+          margin-bottom: 2rem;
+          text-align: center;
+        }
+
+        .input-group {
+          display: flex;
+          gap: 0.5rem;
+          margin-bottom: 2rem;
+        }
+
+        input[type="text"] {
+          background: black;
+          border: 2px solid #00ffff;
+          color: #00ffff;
+          padding: 0.6rem 1rem;
+          font-size: 1rem;
+          width: 250px;
+        }
+
+        button {
+          background: #00ffff;
+          color: black;
+          border: none;
+          padding: 0.6rem 1rem;
+          font-weight: bold;
+          font-family: inherit;
+          cursor: pointer;
+        }
+
+        .info-grid {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 1rem;
+          max-width: 900px;
+          width: 100%;
+        }
+
+        .bubble {
+          background: rgba(0, 0, 0, 0.75);
+          border: 2px solid #00ffff;
+          padding: 1rem;
+          width: 250px;
+          min-height: 60px;
+          text-align: center;
+          font-size: 0.95rem;
+          color: #00ffff;
         }
     </style>
 </head>
 <body>
-
-<div>
-    <h2>Weather Lookup</h2>
-    <input type="text" id="location" placeholder="Enter city (e.g., Ottawa)">
-    <button onclick="getWeather()">Get Current Weather</button>
-</div>
-
-<hr>
-
-<div id="weather-container">
-    <div id="report"></div>
-    <img id="weather-icon" src="" alt="Weather Icon">
+<div class="overlay">
+    <h1>NIMET // WEATHER TERMINAL</h1>
+    <div class="input-group">
+        <input type="text" id="locationInput" placeholder="enter location..." />
+        <button onclick="fetchWeather()">GO</button>
+    </div>
+    <div class="info-grid" id="weatherInfo">
+        <div class="bubble">// awaiting input</div>
+    </div>
 </div>
 
 <script>
-    async function getWeather() {
-        const loc = document.getElementById("location").value.trim();
-        const reportDiv = document.getElementById("report");
-        const iconImg = document.getElementById("weather-icon");
+    async function fetchWeather() {
+      const loc = document.getElementById("locationInput").value.trim();
+      const infoDiv = document.getElementById("weatherInfo");
 
-        if (!loc) {
-            reportDiv.textContent = "Please enter a location.";
-            iconImg.src = "";
-            return;
+      if (!loc) {
+        infoDiv.innerHTML = `<div class="bubble">// please enter a location</div>`;
+        return;
+      }
+
+      infoDiv.innerHTML = `<div class="bubble">// requesting weather for "${loc}"...</div>`;
+
+      try {
+        const res = await fetch(`http://localhost:8000/weather?location=${encodeURIComponent(loc)}`);
+        if (!res.ok) throw new Error(`Status: ${res.status}`);
+        const data = await res.json();
+
+        const locData = data.report.location;
+        const w = data.report.weather;
+
+        // Background image
+        document.body.style.backgroundImage = `url('${data.backgroundImage.url}')`;
+
+        const bubbles = [
+          `📍 Location: ${locData.city_name}, ${locData.region_name}, ${locData.country_name}`,
+          `🌡️ Temp: ${w.temperature[0]}°C / ${w.temperature[1]}°F`,
+          `🤒 Feels Like: ${w.feels_like[0]}°C / ${w.feels_like[1]}°F`,
+          `💧 Dew Point: ${w.dew_point[0]}°C / ${w.dew_point[1]}°F`,
+          `💨 Wind: ${w.wind_speed[0]} kph / ${w.wind_speed[1]} mph`,
+          `🧭 Direction: ${w.wind_heading} (${w.wind_degree}°)`,
+          `🧪 Pressure: ${w.air_pressure[0]} mb / ${w.air_pressure[1]} in`,
+          `👁️ Visibility: ${w.visibility[0]} km / ${w.visibility[1]} mi`,
+          `💦 Humidity: ${w.humidity}%`,
+          `☁️ Clouds: ${w.cloud_coverage}%`,
+          `🌞 Daylight: ${w.isDay ? "Yes" : "No"}`,
+          `🌈 Condition: ${w.condition}`
+        ];
+
+        infoDiv.innerHTML = ""; // Clear previous
+
+        for (const b of bubbles) {
+          const div = document.createElement("div");
+          div.className = "bubble";
+          div.textContent = b;
+          infoDiv.appendChild(div);
         }
-
-        try {
-            const response = await fetch(`http://localhost:8000/weather?location=${encodeURIComponent(loc)}`);
-            if (!response.ok) throw new Error("Network response was not ok");
-
-            const data = await response.json();
-            const locData = data.location;
-            const w = data.weather;
-
-            // Format the text report
-            reportDiv.textContent = `
-📍 Location: ${locData.city_name}, ${locData.region_name}, ${locData.country_name}
-🌐 Coordinates: ${locData.latitude}, ${locData.longitude}
-
-🕒 Daytime: ${w.isDay ? "Yes" : "No"}
-
-🌡 Temperature:
-   - ${w.temperature[0]}°C (Feels like ${w.feels_like[0]}°C)
-   - ${w.temperature[1]}°F (Feels like ${w.feels_like[1]}°F)
-
-💧 Dew Point:
-   - ${w.dew_point[0]}°C | ${w.dew_point[1]}°F
-
-🌬 Wind:
-   - ${w.wind_speed[0]} km/h | ${w.wind_speed[1]} mph
-   - Direction: ${w.wind_heading} (${w.wind_degree}°)
-
-📊 Pressure & Humidity:
-   - ${w.air_pressure[0]} mb | ${w.air_pressure[1]} inHg
-   - Humidity: ${w.humidity}%
-
-☁️ Condition:
-   - ${w.condition}
-   - Cloud Cover: ${w.cloud_coverage}%
-   - Visibility: ${w.visibility[0]} km | ${w.visibility[1]} mi
-`;
-
-            // Fix icon URL (prepend https if needed)
-            let iconUrl = w.icon_source;
-            if (iconUrl.startsWith("//")) {
-                iconUrl = "https:" + iconUrl;
-            }
-            iconImg.src = iconUrl;
-            iconImg.alt = w.condition;
-
-        } catch (error) {
-            reportDiv.textContent = "Error fetching weather: " + error.message;
-            iconImg.src = "";
-        }
+      } catch (err) {
+        console.error(err);
+        infoDiv.innerHTML = `<div class="bubble">ERROR: ${err.message}</div>`;
+      }
     }
 </script>
-
 </body>
 </html>
