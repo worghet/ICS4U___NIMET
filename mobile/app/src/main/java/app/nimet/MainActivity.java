@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     // views
     Button getDataButton;
     TextView dataText;
-    EditText city_entry;
 
     // lat / long
     double latitude, longitude;
@@ -59,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
         // initialize
         getDataButton = findViewById(R.id.get_data_btn);
         dataText = findViewById(R.id.data_here);
-        city_entry = findViewById(R.id.city_enter);
 
         // make location request
         System.out.println("getting location");
