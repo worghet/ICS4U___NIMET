@@ -5,29 +5,34 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".CloudIdentifierActivity">
 
     <TextView
-        android:id="@+id/data_here"
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello again NIMET!"
+        android:layout_marginStart="93dp"
+        android:layout_marginTop="250dp"
+        android:layout_marginEnd="260dp"
+        android:layout_marginBottom="462dp"
+        android:text="Welcome to the cloud id"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/go_to_cloud"
+        android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="160dp"
-        android:layout_marginEnd="161dp"
-        android:layout_marginBottom="17dp"
-        android:onClick="GO_TO_CLOUD_IDENTIFIER"
-        android:text="go to cloud ider"
-        app:layout_constraintBottom_toTopOf="@+id/data_here"
+        android:layout_marginStart="109dp"
+        android:layout_marginTop="102dp"
+        android:layout_marginEnd="212dp"
+        android:layout_marginBottom="312dp"
+        android:onClick="backToMain"
+        android:text="back to main"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 </androidx.constraintlayout.widget.ConstraintLayout>

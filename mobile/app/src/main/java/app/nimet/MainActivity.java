@@ -2,19 +2,16 @@ package app.nimet;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Geocoder;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -24,29 +21,33 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Dictionary;
 import java.util.Locale;
 
+import app.nimet.utils.*;
+
 public class MainActivity extends AppCompatActivity {
+
+    Dictionary<Location, Weather> locationReports;
 
     // views
     Button getDataButton;
     TextView dataText;
 
-    // lat / long
-    double latitude, longitude;
     Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-    String requestedCity;
+    double latitude, longitude;
+    String currentCity;
 
-    // location request stuffs
-    private LocationRequest locationRequest;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
 
     // api
-    static final String NIMET_DATA_API = "http://10.0.0.213:8000/weather?location=";
+    static final String NIMET_LOCAL_SERVER_ADDRESS = "192.168.100.53";
+    static final String NIMET_DATA_API = "http://" + NIMET_LOCAL_SERVER_ADDRESS + ":8000/weather?location=";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,45 +57,28 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // initialize
-        getDataButton = findViewById(R.id.get_data_btn);
+        getDataButton = findViewById(R.id.go_to_cloud);
         dataText = findViewById(R.id.data_here);
 
-        // make location request
-        System.out.println("getting location");
-        getLocation();
-
+        // get current location, and get data for it.
+        getAndUpdateCurrentLocationData(); //ahh!! i dont like this!! I would want this to be modular
 
 
     }
 
-    void geocodeLatLong() {
-        new Thread(() -> {
-            Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
-            try {
-                System.out.println(latitude + " " + longitude);
-                String city = geocoder.getFromLocation(latitude, longitude, 1)
-                        .get(0).getLocality();
-                System.out.println("city: " + city);
-
-                // If you want to update the UI:
-                runOnUiThread(() -> dataText.setText("City: " + city));
-                requestedCity = city;
-
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-                runOnUiThread(() -> dataText.setText("Error getting city"));
-            }
-        }).start();
+    String geocodeLatLong(double latitude, double longitude) throws IOException {
+        System.out.println("geocoding >> lat: " + latitude + " >> long: " + longitude);
+        System.out.println("result>>" + geocoder.getFromLocation(latitude, longitude, 1).get(0).getLocality());
+        return geocoder.getFromLocation(latitude, longitude, 1).get(0).getLocality();
     }
 
 
-    public void getData(View view) {
-
-        System.out.println("city --->> " + requestedCity);
-        String urlString = NIMET_DATA_API + requestedCity;
-        System.out.println("url string --> " + urlString);
-
+    public void getData(String requestedCity) {
         new Thread(() -> {
+            System.out.println("city --->> " + requestedCity);
+            String urlString = NIMET_DATA_API + requestedCity;
+            System.out.println("url string --> " + urlString);
+
             try {
                 URL url = new URL(urlString);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -112,19 +96,26 @@ public class MainActivity extends AppCompatActivity {
                     in.close();
 
                     String jsonResponse = response.toString();
+
+                    // ⚠️ UI update must happen on the main thread
                     runOnUiThread(() -> dataText.setText(jsonResponse));
+                } else {
+                    System.out.println("cant get data");
+                    runOnUiThread(() -> dataText.setText("sum server issue " + requestedCity));
                 }
             } catch (Exception e) {
+                runOnUiThread(() -> dataText.setText("error!! cant get " + requestedCity));
                 System.out.println("failed: " + e.toString());
             }
         }).start();
     }
 
-    public void getLocation() {
+    private void getAndUpdateCurrentLocationData() {
         if (isGPSEnabled()) {
             System.out.println("GPS ENABLED");
 
-            locationRequest = LocationRequest.create();
+            // location request stuffs
+            LocationRequest locationRequest = LocationRequest.create();
             locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             locationRequest.setInterval(10000);
             locationRequest.setFastestInterval(5000);
@@ -149,10 +140,16 @@ public class MainActivity extends AppCompatActivity {
 
                     if (locationResult != null && !locationResult.getLocations().isEmpty()) {
                         int index = locationResult.getLocations().size() - 1;
-                        latitude = locationResult.getLocations().get(index).getLatitude();
-                        longitude = locationResult.getLocations().get(index).getLongitude();
-                        geocodeLatLong();
-                        dataText.setText("lat: " + latitude + "\nlon: " + longitude);
+                        try {
+                            if (currentCity == null) {
+
+                                currentCity = geocodeLatLong(locationResult.getLocations().get(index).getLatitude(), locationResult.getLocations().get(index).getLongitude());
+                                getData(currentCity);
+                                System.out.println("current ciy is NOW -->>>" + currentCity);
+                            }
+                        } catch (IOException e) {
+                            System.out.println("oops!");
+                        }
                     }
                 }
             }, Looper.getMainLooper());
@@ -176,11 +173,19 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, try again
-                getLocation();
-                geocodeLatLong();
+//                updateCurrentLocation();
+//                getData(currentCity);
             } else {
                 dataText.setText("Location permission denied.");
             }
         }
     }
+
+
+    public void GO_TO_CLOUD_IDENTIFIER(View view) {
+        Intent intent = new Intent(this, CloudIdentifierActivity.class);
+        startActivity(intent);
+//        intent.set
+    }
+
 }
