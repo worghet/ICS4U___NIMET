@@ -55,8 +55,9 @@ public class NimetServer {
 
     HttpServer nimetServer;
     Thread meteoDataRetriever; // TODO probably remove dis
-    final String LOCATION_DATA_API = "/weather";
-    final String WEATHER_API = "http://api.weatherapi.com/v1/current.json?key=886ffde491f64aff9fb135114252005&q="; // yes yes dont yell at me; i know that my api key is public.. actually..
+    final String LOCATION_DATA_ENDPOINT = "/weather";
+    final String DATA_KEY = "886ffde491f64aff9fb135114252005"; // yes yes dont yell at me; i know that my api key is public.. actually..
+    final String MAPS_KEY = "c40397ad2c12ec9c407793d6bd255171"; // for open meteo
     final int PORT = 8000; // ex 8000
     final String URL = "http://18.218.44.44:" + PORT; // just where to connect to
     final HttpClient CLIENT = HttpClient.newHttpClient();
@@ -97,19 +98,8 @@ public class NimetServer {
 //        meteoDataRetriever.start();
     }
 
-    /**
-     * Sets up the data retriever. Relies on other APIs to do so.
-     */
-    void setupMeteoRetrieverThread() {
-        meteoDataRetriever = new Thread(() -> {
-
-            // CurrentWeather data is updated here by calling on bunch of other apis
-
-        });
-    }
-
     void setupAPIs() {
-        nimetServer.createContext(LOCATION_DATA_API, exchange -> {
+        nimetServer.createContext(LOCATION_DATA_ENDPOINT, exchange -> {
 
             // get query (q=
 
@@ -158,16 +148,19 @@ public class NimetServer {
 
 
 //                System.out.println("hi");
+
+                Maps maps = getMaps(requestedLocation);
+
                 System.out.println("we are reporting -----\n" + location);
                 System.out.println("dis weather -----\n"+weather);
-                Report report = new Report(location, weather);
+                Report report = new Report(location, weather, maps);
 
 
 
                 // get image
 
 //                curl "https://api.unsplash.com/photos/random?query=ottawa%20day&client_id=0OZ18srl8waYPbUfdk824oOdxpfDSYUFwEzQ5sYMiJQ"
-                JsonObject IMAGE_DATA = getImageData(location.getCityName());
+                JsonObject IMAGE_DATA = getImageFromUnsplashAPI(location.getCityName());
                 //weather.getCondition() + " " +
 
                 BackgroundImage backgroundImage = new BackgroundImage(IMAGE_DATA.getAsJsonObject("urls").get("full").getAsString());
@@ -206,7 +199,7 @@ public class NimetServer {
 
             // build the request
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://api.weatherapi.com/v1/current.json?key=886ffde491f64aff9fb135114252005&q=" + cityName))
+                    .uri(URI.create("http://api.weatherapi.com/v1/current.json?key=" + DATA_KEY +  "&q=" + cityName))
                     .GET()
                     .build();
 
@@ -225,7 +218,7 @@ public class NimetServer {
 
     }
 
-    JsonObject getImageData(String query) {
+    JsonObject getImageFromUnsplashAPI(String query) {
         try {
 //h
             query = query.replaceAll(" ", "%20");
@@ -251,5 +244,30 @@ public class NimetServer {
         return null;
 
     }
-    
+
+    Maps getMaps(String cityName) {
+
+        Maps fetchedMaps = new Maps();
+
+        // === Tile coordinates ** will configure to the coordinates of user.
+        int z = 5;       // Zoom level
+        int x = 10;      // Tile X
+        int y = 12;      // Tile Y
+
+        String base = "https://tile.openweathermap.org/map/";
+        String appid = "?appid=" + MAPS_KEY;
+
+        // === URLs for each layer ===
+        String clouds = base + "clouds_new/" + z + "/" + x + "/" + y + ".png" + appid;
+        String temp = base + "temp_new/" + z + "/" + x + "/" + y + ".png" + appid;
+        String precip = base + "precipitation_new/" + z + "/" + x + "/" + y + ".png" + appid;
+        String pressure = base + "pressure_new/" + z + "/" + x + "/" + y + ".png" + appid;
+
+        // === Initialize maps ===
+        fetchedMaps.initializeMaps(clouds, temp, precip, pressure);
+
+        return fetchedMaps;
+    }
+
+
 }
