@@ -1,6 +1,20 @@
 package backend.server.application_classes;
 
-// can be immediate, can be forcasted weather?
+
+/**
+ *
+ * Weather currently only has CURRENT data; this is sorta(?) intentional.
+ * Currently supports the following units: METRIC, IMPERIAL. Would like to add NAUTICAL as well.
+ * Values that are supported include:
+ * isDay (is it day or not),
+ * temperatures (temp, feels like, dew point),
+ * winds (windspeed, direction (ex 031deg), and heading (worded ex NNE))
+ * conditions (both an icon and a word: ex Sunny, Cloudy, etc)
+ * local air pressure
+ * humidity (%)
+ * cloud coverage (%)
+ * visibility
+ */
 public class Weather {
 
     // units constants
@@ -8,6 +22,57 @@ public class Weather {
     final int IMPERIAL = 1;
 //    final int NAUTICAL = 2;
 
+
+    // is day
+
+    boolean isDay;
+
+    // temperature
+
+    double[] temperature = new double[2];
+    double[] feels_like = new double[2];
+    double[] dew_point = new double[2];
+
+    // winds
+
+    double[] wind_speed = new double[2];
+    String wind_heading;
+    double wind_degree;
+
+    // conditions ("cloudy", "sunny", "clear", etc)
+    String condition;
+    String icon_source;
+
+    // pressure
+    double[] air_pressure = new double[2];
+
+    // humidity (%)
+    double humidity;
+
+    // cloud coverage (%)
+    double cloud_coverage;
+
+    // visibility
+    double[] visibility = new double[2];
+    // double[] ceiling = new double[2];
+
+    public String toString() {
+        return "DAY? " + isDay + "\n" +
+                "TEMP --> " + temperature[METRIC] + "c (" + feels_like[METRIC] + ") || " + temperature[IMPERIAL] + "f (" + feels_like[IMPERIAL] + ")\n" +
+                "DEWP --> " + dew_point[METRIC] + "c || " + dew_point[IMPERIAL] + "f\n" +
+                "AIR  --> " + air_pressure[METRIC] + "mb || " + air_pressure[IMPERIAL] + "in_hg <> humidity " + humidity + "%\n" +
+                "WIND --> " + wind_speed[METRIC] + "kph || " + wind_speed[IMPERIAL] + "mph --> " + wind_heading + " (" + wind_degree + "deg)\n" +
+                "VIS  --> " + visibility[METRIC] + "km || " + visibility[IMPERIAL] + "mi\n" +
+                "COND --> " + condition + " (icon source: " + icon_source + ")";
+    }
+
+
+    public String getCondition() {
+        return condition;
+    }
+
+
+    // made a bunch of seperate methods to keep code cleaner (1 method with 30 some parameters seems messy).
 
     public void setTemperatures(double temp_c, double temp_f,
                                 double feels_like_c, double feels_like_f,
@@ -61,50 +126,5 @@ public class Weather {
 
     }//--> coverage, etc.. (maybe expected clouds?)
 
-    boolean isDay;
-
-    // temperature
-
-    double[] temperature = new double[2];
-    double[] feels_like = new double[2];
-    double[] dew_point = new double[2];
-
-    // winds
-
-    double[] wind_speed = new double[2];
-    String wind_heading;
-    double wind_degree;
-
-    // conditions ("cloudy", "sunny", "clear", etc)
-    String condition;
-    String icon_source;
-
-    // pressure
-    double[] air_pressure = new double[2];
-
-    // humidity (%)
-    double humidity;
-
-    // cloud coverage (%)
-    double cloud_coverage;
-
-    // visibility
-    double[] visibility = new double[2];
-    // double[] ceiling = new double[2];
-
-    public String toString() {
-        return "DAY? " + isDay + "\n" +
-                "TEMP --> " + temperature[METRIC] + "c (" + feels_like[METRIC] + ") || " + temperature[IMPERIAL] + "f (" + feels_like[IMPERIAL] + ")\n" +
-                "DEWP --> " + dew_point[METRIC] + "c || " + dew_point[IMPERIAL] + "f\n" +
-                "AIR  --> " + air_pressure[METRIC] + "mb || " + air_pressure[IMPERIAL] + "in_hg <> humidity " + humidity + "%\n" +
-                "WIND --> " + wind_speed[METRIC] + "kph || " + wind_speed[IMPERIAL] + "mph --> " + wind_heading + " (" + wind_degree + "deg)\n" +
-                "VIS  --> " + visibility[METRIC] + "km || " + visibility[IMPERIAL] + "mi\n" +
-                "COND --> " + condition + " (icon source: " + icon_source + ")";
-    }
-
-
-    public String getCondition() {
-        return condition;
-    }
 
 }

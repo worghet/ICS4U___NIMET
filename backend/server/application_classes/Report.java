@@ -1,13 +1,25 @@
 package backend.server.application_classes;
 
-// currently works for only "now"; no forcasting
+
+/**
+ * Stores all the data a client would need to function properly; including
+ * location,
+ * weather data, and
+ * maps.
+ */
 public class Report {
+
+    // Instance variables.
 
     Location location;
     Weather weather;
     Maps maps;
+
+    // Might do metar if i want to later.
+
     String metar;
-    // Image of fronts in the area
+
+    // Constructor.
 
     public Report(Location location, Weather weather, Maps maps) {
         this.weather = weather;
