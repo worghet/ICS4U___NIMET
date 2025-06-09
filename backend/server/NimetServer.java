@@ -5,6 +5,7 @@ import backend.server.application_classes.*;
 import com.sun.net.httpserver.HttpServer;
 import com.google.gson.*;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -12,6 +13,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 
 // == NIMET SERVER =======
 public class NimetServer {
@@ -55,10 +57,11 @@ public class NimetServer {
 
     HttpServer nimetServer; // actual httpserver
     final String LOCATION_DATA_ENDPOINT = "/weather"; // endpoint to get data for client
+    final String CLOUD_MODEL_ENDPOINT = "/cloud_prediction";
     final String DATA_KEY = "886ffde491f64aff9fb135114252005"; // yes yes dont yell at me; i know that my api key is public.. actually..
     final String MAPS_KEY = "c40397ad2c12ec9c407793d6bd255171"; // for open meteo
     final int PORT = 8000; // ex 8000
-    final String URL = "http://18.218.44.44:" + PORT; // just where to connect to (not using rn but will need to)
+    final String SERVER_SERVER_URL = "http://18.218.44.44:" + PORT; // just where to connect to (not using rn but will need to)
     final HttpClient CLIENT = HttpClient.newHttpClient(); // client that we use to get api data
     final Gson gson = new Gson(); // my favourite <3 --> used for jsonifying and dejsonifying stuff
 
@@ -89,14 +92,16 @@ public class NimetServer {
      */
     void start() {
         nimetServer.start();
-        System.out.println("go here: " + URL + "\nadd query of \"?location={whatever u want}\" at the end\n\n\n\n\nserver logs:\n");
+        System.out.println("go here: " + SERVER_SERVER_URL + "\nadd query of \"?location={whatever u want}\" at the end\n\n\n\n\nserver logs:\n");
     }
 
     void setupAPIs() {
 
-        // make an endpoint for LOCATION_DATA_ENDPOINT (which is /weather)
+        // make an endpoint for LOCATION_DATA_ENDPOINT (which is /weather) !!! This is a GET request
         nimetServer.createContext(LOCATION_DATA_ENDPOINT, exchange -> {
 
+
+            // if GET .equals exchange.getRequestMethod()
             // get query (q="")
 
             String rawQuery = exchange.getRequestURI().getQuery(); // comes in the form of "q=[QUERY]"
@@ -205,6 +210,32 @@ public class NimetServer {
 
 
         });
+
+
+        // make an endpoint for CLOUD_RECONGNITION_ENDPOINT (which is /prediction) !!! This is a POST request
+        nimetServer.createContext(CLOUD_MODEL_ENDPOINT, exchange -> {
+
+            // get the image (encoded in base64)
+            InputStream inputStream = exchange.getRequestBody();
+
+            // this is in the form of a json.
+            String requestBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            String imageBase64 = gson.fromJson(requestBody, JsonObject.class).get("encoded_image").getAsString();
+
+            // decode base64
+
+
+
+            //------------------------------------
+
+            // put it through the feeder
+
+            // return the String of the response. (if cloud, then with a small description? Or just an index (0, 1, 2, etc))
+
+
+        });
+
+
     }
 
     // will ensure city exists beforehand
