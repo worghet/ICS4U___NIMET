@@ -46,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
 
     // api
-    static final String NIMET_LOCAL_SERVER_ADDRESS = "192.168.100.53";
-    static final String NIMET_DATA_API = "http://" + NIMET_LOCAL_SERVER_ADDRESS + ":8000/weather?location=";
+    static final String NIMET_SERVER_ADDRESS = "18.218.44.44";
+    static final String NIMET_DATA_API = "http://" + NIMET_SERVER_ADDRESS + ":8000/weather?location=";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
