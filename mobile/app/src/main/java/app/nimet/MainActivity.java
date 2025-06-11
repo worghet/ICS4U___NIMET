@@ -4,12 +4,15 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Geocoder;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,6 +23,8 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -48,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     // api
     static final String NIMET_SERVER_ADDRESS = "18.218.44.44";
     static final String NIMET_DATA_API = "http://" + NIMET_SERVER_ADDRESS + ":8000/weather?location=";
-
+//
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -56,12 +61,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // initialize
-        getDataButton = findViewById(R.id.go_to_cloud);
-        dataText = findViewById(R.id.data_here);
 
-        // get current location, and get data for it.
-        getAndUpdateCurrentLocationData(); //ahh!! i dont like this!! I would want this to be modular
+        FrameLayout imageContainer = findViewById(R.id.imageContainer);
+
+        int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        ViewGroup.LayoutParams params = imageContainer.getLayoutParams();
+        params.height = screenHeight;
+        imageContainer.setLayoutParams(params);
+
+
+
+//        // get current location, and get data for it.
+        loadData(); //ahh!! i dont like this!! I would want this to be modular (loads and updates views)
+
+        // initialize
+//        getDataButton = findViewById(R.id.go_to_cloud);
+//        dataText = findViewById(R.id.data_here);
+//
 
 
     }
@@ -97,8 +113,11 @@ public class MainActivity extends AppCompatActivity {
 
                     String jsonResponse = response.toString();
 
-                    // ⚠️ UI update must happen on the main thread
-                    runOnUiThread(() -> dataText.setText(jsonResponse));
+                    runOnUiThread(() -> {
+
+//                       updateUI(); TODO
+
+                    });
                 } else {
                     System.out.println("cant get data");
                     runOnUiThread(() -> dataText.setText("sum server issue " + requestedCity));
@@ -110,7 +129,11 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void getAndUpdateCurrentLocationData() {
+    private void updateUI(JSONObject data) {
+
+    }
+
+    private void loadData() {
         if (isGPSEnabled()) {
             System.out.println("GPS ENABLED");
 
@@ -138,6 +161,8 @@ public class MainActivity extends AppCompatActivity {
                     super.onLocationResult(locationResult);
                     LocationServices.getFusedLocationProviderClient(MainActivity.this).removeLocationUpdates(this);
 
+                    // ACTUAL PROCESS STARTS HERE
+
                     if (locationResult != null && !locationResult.getLocations().isEmpty()) {
                         int index = locationResult.getLocations().size() - 1;
                         try {
@@ -159,6 +184,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    private void updateBackgroundImage(String url) {
+
+
+
+
+    }
+
+
 
     private boolean isGPSEnabled() {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
