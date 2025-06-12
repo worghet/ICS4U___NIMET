@@ -30,19 +30,70 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"/>
 
+<!--            TOP ROW OF BUTTONS-->
+
+<!--            BOTTOM SECTION -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="viewStart"
+                    android:layout_gravity="bottom"
+                    android:textColor="@color/white"
+                    android:text="OTTAWA // CANADA"
+                    android:fontFamily="@font/vcr"
+                    android:layout_marginBottom="80dp"
+                    android:layout_marginStart="15dp"
+                    android:textSize="32dp"/>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewStart"
+                android:layout_gravity="bottom"
+                android:textColor="@color/white"
+                android:text="Sunny || 19*C"
+                android:fontFamily="@font/vcr"
+                android:layout_marginBottom="50dp"
+                android:layout_marginStart="15dp"
+                android:textSize="24dp"/>
+
             <TextView
                 android:id="@+id/loadingTextView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:textAlignment="center"
 
-                android:textSize="30dp"
+
+                android:textSize="0dp"
                 android:text="\n\n\n\n\n\n\n\n\n\n\nLoading..."
                 android:textColor="@color/white"
                 />
 
 
         </FrameLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         <!-- BOTTOM DATA SECTION -->
         <LinearLayout

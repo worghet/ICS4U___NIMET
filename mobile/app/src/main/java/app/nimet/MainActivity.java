@@ -201,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
 
             url = data.getJSONObject("backgroundImage").getString("url");
 
+
         }
         catch(Exception e) {
             System.out.println("sum failed when making json object");
@@ -219,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
 
         Glide.with(this)
                 .load(url)
-                .override(1090, 1920)
+                .override(1080, 2400) // set this to device dimensions using Resources.getSystem().getDisplayMetrics().heightPixels;
                 .centerCrop()
                 .into(new CustomTarget<Drawable>() {
                     @Override

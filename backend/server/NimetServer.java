@@ -281,7 +281,7 @@ public class NimetServer {
                 JsonArray results = root.getAsJsonArray("results");
 
                 if (results != null && !results.isEmpty()) {
-                    int count = Math.min(results.size(), 5);
+                    int count = Math.min(results.size(), 15);
                     int randomIndex = new Random().nextInt(count);
                     return results.get(randomIndex).getAsJsonObject();
                 }
