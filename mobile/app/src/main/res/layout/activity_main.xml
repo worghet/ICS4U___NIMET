@@ -9,7 +9,7 @@
     android:fillViewport="true"
     android:scrollbars="none">
 
-<!--    FULL LAYOUT (BOTH TOP AND BOTTOM)-->
+    <!--    FULL LAYOUT (BOTH TOP AND BOTTOM)-->
     <LinearLayout
         android:id="@+id/mainLayout"
         android:orientation="vertical"
@@ -17,7 +17,7 @@
         android:layout_height="wrap_content">
 
 
-<!--        TOP GENERAL SECTION-->
+        <!--        TOP GENERAL SECTION-->
         <FrameLayout
             android:id="@+id/imageContainer"
             android:layout_width="match_parent"

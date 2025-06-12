@@ -122,7 +122,6 @@ public class NimetServer {
 
             // 1. get and formate the DATA
 
-
             // get the data object (pure extracted data)
             JsonObject WEATHER_DATA = getWeatherJSON(requestedLocation);
 

@@ -41,6 +41,46 @@ public class MainActivity extends AppCompatActivity {
     Dictionary<Location, Weather> locationReports;
 
     // views
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    TextView loadingTextView;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     Button getDataButton;
     TextView dataText;
 
@@ -53,13 +93,17 @@ public class MainActivity extends AppCompatActivity {
     // api
     static final String NIMET_SERVER_ADDRESS = "18.218.44.44";
     static final String NIMET_DATA_API = "http://" + NIMET_SERVER_ADDRESS + ":8000/weather?location=";
-//
+    //
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         // initialize activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        // initialize views
+        initializeViews();
 
 
         FrameLayout imageContainer = findViewById(R.id.imageContainer);
@@ -82,6 +126,16 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    private void initializeViews() {
+
+
+        loadingTextView = findViewById(R.id.loadingTextView);
+
+    }
+
+
+
     String geocodeLatLong(double latitude, double longitude) throws IOException {
         System.out.println("geocoding >> lat: " + latitude + " >> long: " + longitude);
         System.out.println("result>>" + geocoder.getFromLocation(latitude, longitude, 1).get(0).getLocality());
@@ -94,6 +148,9 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("city --->> " + requestedCity);
             String urlString = NIMET_DATA_API + requestedCity;
             System.out.println("url string --> " + urlString);
+
+            loadingTextView.setText("Starting request to server...");
+
 
             try {
                 URL url = new URL(urlString);
@@ -115,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
 
                     runOnUiThread(() -> {
 
+                        loadingTextView.setText(jsonResponse);
 //                       updateUI(); TODO
 
                     });
@@ -123,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(() -> dataText.setText("sum server issue " + requestedCity));
                 }
             } catch (Exception e) {
-                runOnUiThread(() -> dataText.setText("error!! cant get " + requestedCity));
+                runOnUiThread(() -> loadingTextView.setText("\n\n\n\n\nfailed to access server (" + requestedCity + ")"));
                 System.out.println("failed: " + e.toString());
             }
         }).start();
@@ -136,6 +194,8 @@ public class MainActivity extends AppCompatActivity {
     private void loadData() {
         if (isGPSEnabled()) {
             System.out.println("GPS ENABLED");
+
+            loadingTextView.setText("Getting location..");
 
             // location request stuffs
             LocationRequest locationRequest = LocationRequest.create();
@@ -169,6 +229,9 @@ public class MainActivity extends AppCompatActivity {
                             if (currentCity == null) {
 
                                 currentCity = geocodeLatLong(locationResult.getLocations().get(index).getLatitude(), locationResult.getLocations().get(index).getLongitude());
+
+                                loadingTextView.setText("You are in... " + currentCity + "... getting data...");
+
                                 getData(currentCity);
                                 System.out.println("current ciy is NOW -->>>" + currentCity);
                             }

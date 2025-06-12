@@ -21,6 +21,19 @@ import java.util.Random;
 
 public class CloudIdentifierActivity extends AppCompatActivity {
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     private static final int CAMERA_PERMISSION_CODE = 100;
 
     private ImageView pictureResult;
