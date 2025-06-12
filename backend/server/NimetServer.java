@@ -14,6 +14,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Random;
 
 // == NIMET SERVER =======
 public class NimetServer {
@@ -262,38 +263,36 @@ public class NimetServer {
         return null;
 
     }
-
     JsonObject getImageFromUnsplashAPI(String query) {
         try {
-//h
-
-            // if the city (or query) is multiworded, format it to be properly used in url
-
             query = query.replaceAll(" ", "%20");
-            System.out.println("image for: " + query);
 
-            // build the request
+            String url = "https://api.unsplash.com/search/photos?page=1&per_page=5&query=" + query + "&client_id=0OZ18srl8waYPbUfdk824oOdxpfDSYUFwEzQ5sYMiJQ";
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.unsplash.com/photos/random?query=" + query + "&client_id=0OZ18srl8waYPbUfdk824oOdxpfDSYUFwEzQ5sYMiJQ"))
+                    .uri(URI.create(url))
                     .GET()
                     .build();
 
-            // send the request
             HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
-            // if all good, return the content
             if (response.statusCode() == 200) {
-                return JsonParser.parseString(response.body()).getAsJsonObject();
+                JsonObject root = JsonParser.parseString(response.body()).getAsJsonObject();
+                JsonArray results = root.getAsJsonArray("results");
+
+                if (results != null && !results.isEmpty()) {
+                    int count = Math.min(results.size(), 5);
+                    int randomIndex = new Random().nextInt(count);
+                    return results.get(randomIndex).getAsJsonObject();
+                }
             }
 
+        } catch (Exception e) {
+            System.out.println("Error fetching image from Unsplash: " + e.getMessage());
         }
-        catch (Exception e) {}
 
         return null;
-
     }
-
-
 
     // TODO
     Maps getMaps(String cityName) {

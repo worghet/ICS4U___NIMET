@@ -33,7 +33,13 @@ android {
 
 dependencies {
 
+    // for location
     implementation(libs.play.services.location)
+
+    // for loading image from url
+    implementation(libs.glide)
+    annotationProcessor(libs.glide.compiler)
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

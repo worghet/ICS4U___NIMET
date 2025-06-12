@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.location.Geocoder;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -19,6 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
@@ -173,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
 
                         loadingTextView.setText(jsonResponse);
-//                       updateUI(); TODO
+                       updateUI(jsonResponse);
 
                     });
                 } else {
@@ -187,7 +191,45 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void updateUI(JSONObject data) {
+    private void updateUI(String rawJSON) {
+
+        String url;
+        JSONObject data;
+
+        try {
+            data = new JSONObject(rawJSON);
+
+            url = data.getJSONObject("backgroundImage").getString("url");
+
+        }
+        catch(Exception e) {
+            System.out.println("sum failed when making json object");
+            data = null;
+            url = null;
+        }
+
+        if (data == null) {
+            return;
+        }
+
+
+
+        // set image background
+        FrameLayout imageContainer = findViewById(R.id.imageContainer);
+
+        Glide.with(this)
+                .load(url)
+                .into(new CustomTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, Transition<? super Drawable> transition) {
+                        imageContainer.setBackground(resource);
+                    }
+
+                    @Override
+                    public void onLoadCleared(Drawable placeholder) {
+                        // Optional: handle view recycling or cleanup here
+                    }
+                });
 
     }
 
