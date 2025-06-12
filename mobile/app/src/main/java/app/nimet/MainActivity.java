@@ -219,6 +219,8 @@ public class MainActivity extends AppCompatActivity {
 
         Glide.with(this)
                 .load(url)
+                .override(1090, 1920)
+                .centerCrop()
                 .into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, Transition<? super Drawable> transition) {
