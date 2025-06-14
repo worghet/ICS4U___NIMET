@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,10 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.annotation.GlideModule;
-import com.bumptech.glide.module.AppGlideModule;
 import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -148,10 +144,10 @@ public class MainActivity extends AppCompatActivity {
 
         unitToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                displayWeatherData(FAHRENHEIT);
+                displayWeatherData(Weather.IMPERIAL);
 //                overview.setText("CONDITION || ##°F");
             } else {
-                displayWeatherData(CELSIUS);
+                displayWeatherData(Weather.METRIC);
 //                overview.setText("CONDITION || ##°C");
             }
         });
@@ -249,13 +245,10 @@ public class MainActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.location_name)).setText(locationData.getCityName().toUpperCase() + " // " + locationData.getCountryName().toUpperCase());
 
         // set weather data
-        displayWeatherData(CELSIUS);
+        displayWeatherData(Weather.METRIC);
 
 
     }
-
-    final private int CELSIUS = 0;
-    final private int FAHRENHEIT = 1;
 
 
     private void findAndLoadFrontsMap() {
@@ -320,9 +313,15 @@ public class MainActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.wind)).setText(Math.round(weatherData.getWind_speed()[UNIT_OF_MEASUREMENT]) + weatherData.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.SPEED]);
         ((TextView) findViewById(R.id.wind_descriptor)).setText("Wind (" + weatherData.getWind_heading() + ")");
 
-        // pressure TODO some stuff should not be rounded..
-        ((TextView) findViewById(R.id.pressure)).setText(String.valueOf(weatherData.getAir_pressure()[UNIT_OF_MEASUREMENT]));
-        ((TextView) findViewById(R.id.pressure_descriptor)).setText("Pressure (" +  weatherData.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.PRESSURE] + ")");
+        if (UNIT_OF_MEASUREMENT == Weather.METRIC) {
+            ((TextView) findViewById(R.id.pressure)).setText(String.valueOf(Math.round(weatherData.getAir_pressure()[UNIT_OF_MEASUREMENT])));
+        }
+        else {
+            ((TextView) findViewById(R.id.pressure)).setText(String.valueOf(weatherData.getAir_pressure()[UNIT_OF_MEASUREMENT]));
+
+        }
+
+        ((TextView) findViewById(R.id.pressure_descriptor)).setText("Pressure (" +  Weather.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.PRESSURE] + ")");
 
         // visibility
         ((TextView) findViewById(R.id.visibility)).setText(Math.round(weatherData.getVisibility()[UNIT_OF_MEASUREMENT]) + weatherData.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.DISTANCE]);
