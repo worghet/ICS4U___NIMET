@@ -63,7 +63,7 @@ public class CloudIdentifierActivity extends AppCompatActivity {
     }
 
     // Method to take a photo
-    public void takePhoto(View view) {
+    public void TAKE_PHOTO(View view) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
             // If permission is not granted, request it

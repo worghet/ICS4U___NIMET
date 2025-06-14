@@ -321,7 +321,8 @@ public class MainActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.wind_descriptor)).setText("Wind (" + weatherData.getWind_heading() + ")");
 
         // pressure TODO some stuff should not be rounded..
-        ((TextView) findViewById(R.id.pressure)).setText(Math.round(weatherData.getAir_pressure()[UNIT_OF_MEASUREMENT]) + weatherData.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.PRESSURE]);
+        ((TextView) findViewById(R.id.pressure)).setText(String.valueOf(weatherData.getAir_pressure()[UNIT_OF_MEASUREMENT]));
+        ((TextView) findViewById(R.id.pressure_descriptor)).setText("Pressure (" +  weatherData.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.PRESSURE] + ")");
 
         // visibility
         ((TextView) findViewById(R.id.visibility)).setText(Math.round(weatherData.getVisibility()[UNIT_OF_MEASUREMENT]) + weatherData.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.DISTANCE]);
