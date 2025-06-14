@@ -21,4 +21,8 @@ public class Location {
     public String getCityName() {
         return city_name;
     }
+
+    public String getCountryName() {
+        return country_name;
+    }
 }

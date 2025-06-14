@@ -5,6 +5,15 @@ public class Weather {
 
     // units constants
     final int METRIC = 0;
+    // could use a hash of sorts here but whatever, its 0130 im not doin allat
+    final public static String[][] UNIT_SYNTAX = {{"°C", "mb", "kmh", "km"}, {"°F", "inHg", "mph", "mi"}};
+
+    final public static int TEMP = 0;
+    final public static int PRESSURE = 1;
+    final public static int SPEED = 2;
+    final public static int DISTANCE = 3;
+
+
     final int IMPERIAL = 1;
 //    final int NAUTICAL = 2;
 
@@ -107,4 +116,47 @@ public class Weather {
         return condition;
     }
 
+    public double[] getTemperature() {
+        return temperature;
+    }
+
+    public double[] getFeels_like() {
+        return feels_like;
+    }
+
+    public double[] getDew_point() {
+        return dew_point;
+    }
+
+    public double[] getWind_speed() {
+        return wind_speed;
+    }
+
+    public String getWind_heading() {
+        return wind_heading;
+    }
+
+    public double getWind_degree() {
+        return wind_degree;
+    }
+
+    public String getIcon_source() {
+        return icon_source;
+    }
+
+    public double[] getAir_pressure() {
+        return air_pressure;
+    }
+
+    public double getHumidity() {
+        return humidity;
+    }
+
+    public double getCloud_coverage() {
+        return cloud_coverage;
+    }
+
+    public double[] getVisibility() {
+        return visibility;
+    }
 }

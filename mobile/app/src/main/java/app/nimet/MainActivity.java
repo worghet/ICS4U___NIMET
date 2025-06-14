@@ -28,8 +28,9 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     TextView loadingTextView;
+    TextView location_name;
 
 
 
@@ -99,6 +101,11 @@ public class MainActivity extends AppCompatActivity {
     static final String NIMET_SERVER_ADDRESS = "18.218.44.44";
     static final String NIMET_DATA_API = "http://" + NIMET_SERVER_ADDRESS + ":8000/weather?location=";
     //
+
+    Weather weatherData;
+    Location locationData;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -131,22 +138,24 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    TextView overview;
     private void initializeViews() {
 
 
         loadingTextView = findViewById(R.id.loadingTextView);
-
-
+        location_name = findViewById(R.id.location_name);
+        overview = findViewById(R.id.overview);
 
         ToggleButton unitToggle = findViewById(R.id.unit_toggle);
         TextView overview = findViewById(R.id.overview);
 
         unitToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                overview.setText("CONDITION || ##°F");
+                displayWeatherData(FAHRENHEIT);
+//                overview.setText("CONDITION || ##°F");
             } else {
-                overview.setText("CONDITION || ##°C");
+                displayWeatherData(CELSIUS);
+//                overview.setText("CONDITION || ##°C");
             }
         });
 
@@ -169,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
             String urlString = NIMET_DATA_API + requestedCity;
             System.out.println("url string --> " + urlString);
 
-            loadingTextView.setText("Starting request to server...");
+            runOnUiThread(() -> loadingTextView.setText("Starting request to server..."));
 
 
             try {
@@ -189,11 +198,17 @@ public class MainActivity extends AppCompatActivity {
                     in.close();
 
                     String jsonResponse = response.toString();
+                    JsonObject fullJson = JsonParser.parseString(jsonResponse).getAsJsonObject();
+                    JsonObject reportJson = fullJson.getAsJsonObject("report");
+
+                    locationData = new Gson().fromJson(reportJson.get("location"), Location.class);
+                    weatherData = new Gson().fromJson(reportJson.get("weather"), Weather.class);
+
 
                     runOnUiThread(() -> {
 
-                        loadingTextView.setText(jsonResponse);
-                       updateUI(jsonResponse);
+                       loadingTextView.setText("");
+                       updateUI(fullJson.get("backgroundImage").getAsJsonObject().get("url").getAsString());
 
                     });
                 } else {
@@ -207,35 +222,13 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void updateUI(String rawJSON) {
-
-        String url;
-        JSONObject data;
-
-        try {
-            data = new JSONObject(rawJSON);
-
-            url = data.getJSONObject("backgroundImage").getString("url");
-
-
-        }
-        catch(Exception e) {
-            System.out.println("sum failed when making json object");
-            data = null;
-            url = null;
-        }
-
-        if (data == null) {
-            return;
-        }
-
-
+    private void updateUI(String bgURL) {
 
         // set image background
         FrameLayout imageContainer = findViewById(R.id.imageContainer);
 
         Glide.with(this)
-                .load(url)
+                .load(bgURL)
                 .override(1080, 2400) // set this to device dimensions using Resources.getSystem().getDisplayMetrics().heightPixels;
                 .centerCrop()
                 .into(new CustomTarget<Drawable>() {
@@ -250,7 +243,38 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+
+        // set location name
+        System.out.println("locationData: " + locationData);
+        System.out.println("location_name: " + location_name);
+
+        location_name.setText(locationData.getCityName().toUpperCase() + " // " + locationData.getCountryName().toUpperCase());
+
+        // set weather data
+        displayWeatherData(CELSIUS);
+
+
+
+
+
+
+
+
+
+
     }
+
+    final private int CELSIUS = 0;
+    final private int FAHRENHEIT = 1;
+
+
+    private void displayWeatherData(int UNIT_OF_MEASUREMENT) {
+
+        overview.setText(weatherData.getCondition().toUpperCase() + " || " + Math.round(weatherData.getTemperature()[UNIT_OF_MEASUREMENT]) + Weather.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.TEMP]);
+
+
+    }
+
 
     private void loadData() {
         if (isGPSEnabled()) {
