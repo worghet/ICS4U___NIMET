@@ -37,6 +37,9 @@ dependencies {
     implementation(libs.play.services.location)
 
     // for loading image from url
+    implementation(libs.glide.v4151)
+    annotationProcessor(libs.compiler.v4151)
+
     implementation(libs.glide)
     implementation(files("libs/gson-2.10.1.jar"))
     annotationProcessor(libs.glide.compiler)

@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -22,7 +23,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.annotation.GlideModule;
+import com.bumptech.glide.module.AppGlideModule;
 import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -68,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     TextView loadingTextView;
-    TextView location_name;
 
 
 
@@ -87,9 +90,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-    Button getDataButton;
-    TextView dataText;
 
     Geocoder geocoder = new Geocoder(this, Locale.getDefault());
     double latitude, longitude;
@@ -138,13 +138,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    TextView overview;
     private void initializeViews() {
 
 
         loadingTextView = findViewById(R.id.loadingTextView);
-        location_name = findViewById(R.id.location_name);
-        overview = findViewById(R.id.overview);
 
         ToggleButton unitToggle = findViewById(R.id.unit_toggle);
         TextView overview = findViewById(R.id.overview);
@@ -205,15 +202,19 @@ public class MainActivity extends AppCompatActivity {
                     weatherData = new Gson().fromJson(reportJson.get("weather"), Weather.class);
 
 
+
+
+
+
                     runOnUiThread(() -> {
 
+                        // finished loading so hide the loading text
                        loadingTextView.setText("");
-                       updateUI(fullJson.get("backgroundImage").getAsJsonObject().get("url").getAsString());
+
+
+                        updateUI(fullJson.get("backgroundImage").getAsJsonObject().get("url").getAsString());
 
                     });
-                } else {
-                    System.out.println("cant get data");
-                    runOnUiThread(() -> dataText.setText("sum server issue " + requestedCity));
                 }
             } catch (Exception e) {
                 runOnUiThread(() -> loadingTextView.setText("FAILED TO ACCESS SERVER (" + requestedCity.toUpperCase() + ")"));
@@ -245,21 +246,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         // set location name
-        System.out.println("locationData: " + locationData);
-        System.out.println("location_name: " + location_name);
-
-        location_name.setText(locationData.getCityName().toUpperCase() + " // " + locationData.getCountryName().toUpperCase());
+        ((TextView) findViewById(R.id.location_name)).setText(locationData.getCityName().toUpperCase() + " // " + locationData.getCountryName().toUpperCase());
 
         // set weather data
         displayWeatherData(CELSIUS);
-
-
-
-
-
-
-
-
 
 
     }
@@ -268,9 +258,77 @@ public class MainActivity extends AppCompatActivity {
     final private int FAHRENHEIT = 1;
 
 
+    private void findAndLoadFrontsMap() {
+        new Thread(() -> {
+            java.time.ZonedDateTime currentTime = java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC);
+
+            for (int i = 0; i < 60; i++) {
+                java.time.ZonedDateTime attemptTime = currentTime.minusMinutes(i);
+                String datePart = String.format("%04d%02d%02d",
+                        attemptTime.getYear(),
+                        attemptTime.getMonthValue(),
+                        attemptTime.getDayOfMonth());
+
+                String timePart = String.format("%02d%02d",
+                        attemptTime.getHour(),
+                        attemptTime.getMinute());
+
+                String url = "https://s.w-x.co/staticmaps/wu/fee4c/surface_cur/conus/" + datePart + "/" + timePart + "z.jpg";
+
+                try {
+                    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+                    connection.setRequestMethod("HEAD");
+                    connection.connect();
+
+                    if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                        // Valid image found, load with Glide on UI thread
+                        String finalUrl = url;
+                        runOnUiThread(() -> {
+                            ImageView frontsMap = findViewById(R.id.fronts_map);
+                            Glide.with(this)
+                                    .load(finalUrl)
+                                    .into(frontsMap);
+                        });
+                        break;
+                    }
+                } catch (IOException ignored) {
+                    // skip to next
+                }
+            }
+        }).start();
+    }
+
+
     private void displayWeatherData(int UNIT_OF_MEASUREMENT) {
 
-        overview.setText(weatherData.getCondition().toUpperCase() + " || " + Math.round(weatherData.getTemperature()[UNIT_OF_MEASUREMENT]) + Weather.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.TEMP]);
+
+
+        // start searching for fronts map
+        findAndLoadFrontsMap();
+
+        // overview
+        ((TextView) findViewById(R.id.overview)).setText(weatherData.getCondition().toUpperCase() + " || " + Math.round(weatherData.getTemperature()[UNIT_OF_MEASUREMENT]) + Weather.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.TEMP]);
+
+        // set the temperatures (first row)
+        ((TextView) findViewById(R.id.temperature)).setText(Math.round(weatherData.getTemperature()[UNIT_OF_MEASUREMENT]) + weatherData.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.TEMP]);
+        ((TextView) findViewById(R.id.temperature_feels_like)).setText(Math.round(weatherData.getFeels_like()[UNIT_OF_MEASUREMENT]) + weatherData.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.TEMP]);
+
+        // set the dew point
+        ((TextView) findViewById(R.id.dew_point)).setText(Math.round(weatherData.getDew_point()[UNIT_OF_MEASUREMENT]) + weatherData.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.TEMP]);
+
+        // set the wind
+        ((TextView) findViewById(R.id.wind)).setText(Math.round(weatherData.getWind_speed()[UNIT_OF_MEASUREMENT]) + weatherData.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.SPEED]);
+        ((TextView) findViewById(R.id.wind_descriptor)).setText("Wind (" + weatherData.getWind_heading() + ")");
+
+        // pressure TODO some stuff should not be rounded..
+        ((TextView) findViewById(R.id.pressure)).setText(Math.round(weatherData.getAir_pressure()[UNIT_OF_MEASUREMENT]) + weatherData.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.PRESSURE]);
+
+        // visibility
+        ((TextView) findViewById(R.id.visibility)).setText(Math.round(weatherData.getVisibility()[UNIT_OF_MEASUREMENT]) + weatherData.UNIT_SYNTAX[UNIT_OF_MEASUREMENT][Weather.DISTANCE]);
+
+        // percent based stuff;
+        ((TextView) findViewById(R.id.humidity)).setText(Math.round(weatherData.getHumidity()) + "%");
+        ((TextView) findViewById(R.id.cloud_coverage)).setText(Math.round(weatherData.getCloud_coverage()) + "%");
 
 
     }
@@ -333,13 +391,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void updateBackgroundImage(String url) {
-
-
-
-
-    }
-
 
 
     private boolean isGPSEnabled() {
@@ -357,8 +408,6 @@ public class MainActivity extends AppCompatActivity {
                 // Permission granted, try again
 //                updateCurrentLocation();
 //                getData(currentCity);
-            } else {
-                dataText.setText("Location permission denied.");
             }
         }
     }
@@ -381,5 +430,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
 }
+
+
