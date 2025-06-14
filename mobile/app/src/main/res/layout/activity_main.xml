@@ -75,7 +75,6 @@
                 android:fontFamily="@font/vcr"
                 android:minWidth="54dp"
                 android:minHeight="54dp"
-                android:onClick="GO_TO_CLOUD_IDENTIFIER"
                 android:text="M"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
@@ -93,6 +92,7 @@
                 android:fontFamily="@font/vcr"
                 android:minWidth="54dp"
                 android:minHeight="54dp"
+                android:onClick="GO_TO_CLOUD_IDENTIFIER"
 
                 android:text="I"
                 android:textColor="@color/black"
@@ -124,7 +124,7 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginBottom="50dp"
                 android:fontFamily="@font/vcr"
-                android:text="CONDITION || ##°C"
+                android:text="CONDITION || --°C"
                 android:textAlignment="viewStart"
                 android:textColor="@color/white"
                 android:textSize="24dp" />
@@ -204,7 +204,7 @@
                         android:layout_marginBottom="8dp"
                         android:fontFamily="@font/vcr"
                         android:gravity="center"
-                        android:text="23°C"
+                        android:text="--°C"
                         android:textColor="#000000"
 
                         android:textSize="28sp" />
@@ -240,7 +240,7 @@
                         android:layout_marginBottom="8dp"
                         android:fontFamily="@font/vcr"
                         android:gravity="center"
-                        android:text="22°C"
+                        android:text="--°C"
                         android:textColor="#000000"
                         android:textSize="28sp" />
 
@@ -275,7 +275,7 @@
                         android:layout_marginBottom="8dp"
                         android:fontFamily="@font/vcr"
                         android:gravity="center"
-                        android:text="16°C"
+                        android:text="--°C"
                         android:textColor="#000000"
                         android:textSize="28sp" />
 
@@ -310,7 +310,7 @@
                         android:layout_marginBottom="8dp"
                         android:fontFamily="@font/vcr"
                         android:gravity="center"
-                        android:text="5kmh"
+                        android:text="-kmh"
                         android:textColor="#000000"
                         android:textSize="28sp" />
 
@@ -319,7 +319,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/vcr"
                         android:gravity="center"
-                        android:text="Wind (NWE)"
+                        android:text="Wind (-)"
                         android:id="@+id/wind_descriptor"
                         android:textColor="#000000"
                         android:textSize="14sp" />
@@ -347,7 +347,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/vcr"
                         android:gravity="center"
-                        android:text="1022 mb"
+                        android:text="----mb"
                         android:textColor="#000000"
                         android:textSize="28sp" />
 
@@ -383,7 +383,7 @@
                         android:layout_marginBottom="8dp"
                         android:fontFamily="@font/vcr"
                         android:gravity="center"
-                        android:text="24 km"
+                        android:text="--km"
                         android:textColor="#000000"
                         android:textSize="28sp" />
 
@@ -418,7 +418,7 @@
                         android:layout_marginBottom="8dp"
                         android:fontFamily="@font/vcr"
                         android:gravity="center"
-                        android:text="67%"
+                        android:text="--%"
                         android:textColor="#000000"
                         android:textSize="28sp" />
 
@@ -453,7 +453,7 @@
                         android:layout_marginBottom="8dp"
                         android:fontFamily="@font/vcr"
                         android:gravity="center"
-                        android:text="75%"
+                        android:text="--%"
                         android:textColor="#000000"
                         android:textSize="28sp" />
 
