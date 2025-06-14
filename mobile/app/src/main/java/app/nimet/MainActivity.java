@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -136,6 +137,21 @@ public class MainActivity extends AppCompatActivity {
 
         loadingTextView = findViewById(R.id.loadingTextView);
 
+
+
+        ToggleButton unitToggle = findViewById(R.id.unit_toggle);
+        TextView overview = findViewById(R.id.overview);
+
+        unitToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                overview.setText("CONDITION || ##°F");
+            } else {
+                overview.setText("CONDITION || ##°C");
+            }
+        });
+
+
+
     }
 
 
@@ -185,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(() -> dataText.setText("sum server issue " + requestedCity));
                 }
             } catch (Exception e) {
-                runOnUiThread(() -> loadingTextView.setText("\n\n\n\n\nfailed to access server (" + requestedCity + ")"));
+                runOnUiThread(() -> loadingTextView.setText("FAILED TO ACCESS SERVER (" + requestedCity.toUpperCase() + ")"));
                 System.out.println("failed: " + e.toString());
             }
         }).start();
@@ -329,5 +345,17 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
 //        intent.set
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

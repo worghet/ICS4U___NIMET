@@ -17,11 +17,11 @@
         android:layout_height="wrap_content">
 
 
-        <!--        TOP GENERAL SECTION-->
+        <!--        !!! TOP GENERAL SECTION-->
         <FrameLayout
             android:id="@+id/imageContainer"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="920dp"
             android:background="#000000"
             tools:ignore="Suspicious0dp">
 
@@ -32,27 +32,102 @@
 
 <!--            TOP ROW OF BUTTONS-->
 
+
+
+
 <!--            BOTTOM SECTION -->
                 <TextView
+                    android:id="@+id/location_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAlignment="viewStart"
                     android:layout_gravity="bottom"
                     android:textColor="@color/white"
-                    android:text="OTTAWA // CANADA"
+                    android:text="CITY // COUNTRY"
                     android:fontFamily="@font/vcr"
                     android:layout_marginBottom="80dp"
                     android:layout_marginStart="15dp"
                     android:textSize="32dp"/>
 
+<!--           UNIT TOGGLE -->
+            <ToggleButton
+                android:id="@+id/unit_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="METRIC"
+                android:textOn="IMPERIAL"
+                android:textColor="@color/black"
+                android:background="#FFFFFF"
+                android:fontFamily="@font/vcr"
+                android:layout_gravity="end"
+                android:layout_marginTop="55dp"
+                android:layout_marginEnd="16dp"
+                android:textSize="18sp"
+                android:minHeight="54dp"
+                android:minWidth="110dp"/>
+
+<!--            go to this menu-->
+
+            <Button
+                android:id="@+id/main_screen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="54dp"
+                android:minWidth="54dp"
+                android:layout_marginTop="55dp"
+                android:layout_marginStart="16dp"
+                android:layout_gravity="top|start"
+                android:background="@color/white"
+                android:onClick="GO_TO_CLOUD_IDENTIFIER"
+                android:text="M"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:fontFamily="@font/vcr"/>
+
+
+<!--            go to identifier-->
+            <Button
+                android:id="@+id/identifier_screen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="54dp"
+                android:minWidth="54dp"
+                android:layout_marginTop="55dp"
+                android:layout_marginStart="87dp"
+                android:layout_gravity="top|start"
+                android:background="@color/white"
+                android:textColor="@color/black"
+
+                android:text="I"
+                android:textSize="18sp"
+                android:fontFamily="@font/vcr"/>
+
+
+<!--            -->
+            <Button
+                android:id="@+id/docs_screen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="54dp"
+                android:minWidth="54dp"
+                android:textColor="@color/black"
+                android:layout_marginTop="55dp"
+                android:layout_marginStart="158dp"
+                android:layout_gravity="top|start"
+                android:background="@color/white"
+                android:text="D"
+                android:textSize="18sp"
+                android:fontFamily="@font/vcr"/>
+
 
             <TextView
+                android:id="@+id/overview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAlignment="viewStart"
                 android:layout_gravity="bottom"
                 android:textColor="@color/white"
-                android:text="Sunny || 19*C"
+                android:text="CONDITION || ##°C"
                 android:fontFamily="@font/vcr"
                 android:layout_marginBottom="50dp"
                 android:layout_marginStart="15dp"
@@ -64,9 +139,10 @@
                 android:layout_height="match_parent"
                 android:textAlignment="center"
 
-
-                android:textSize="0dp"
-                android:text="\n\n\n\n\n\n\n\n\n\n\nLoading..."
+                android:fontFamily="@font/vcr"
+                android:layout_marginTop="340dp"
+                android:textSize="29dp"
+                android:text="Loading..."
                 android:textColor="@color/white"
                 />
 
